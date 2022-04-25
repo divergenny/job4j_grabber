@@ -5,16 +5,18 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class Property {
-    Properties properties;
+    private Properties properties;
 
     public Property(String propertyFileName) throws IOException {
         init(propertyFileName);
     }
 
-
     private void init(String propertyFileName) throws IOException {
         properties = new Properties();
-        try (InputStream in = Property.class.getClassLoader().getResourceAsStream(propertyFileName)) {
+        try (InputStream in = Property
+                .class
+                .getClassLoader()
+                .getResourceAsStream(propertyFileName)) {
             properties.load(in);
         }
     }
