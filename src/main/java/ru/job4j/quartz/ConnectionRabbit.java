@@ -2,11 +2,11 @@ package ru.job4j.quartz;
 
 import java.sql.*;
 
-public class PrepareStatementRabbit {
+public class ConnectionRabbit {
     private Connection connection;
     private Property cfg;
 
-    public PrepareStatementRabbit(Property property) throws SQLException, ClassNotFoundException {
+    public ConnectionRabbit(Property property) throws SQLException, ClassNotFoundException {
         this.cfg = property;
         initConnection();
     }
@@ -19,13 +19,8 @@ public class PrepareStatementRabbit {
         connection = DriverManager.getConnection(url, login, password);
     }
 
-    public void insertCreatedDate(Timestamp date) {
-        try (PreparedStatement statement = connection.prepareStatement(
-                "insert into rabbit(created_date) values(?)")) {
-            statement.setTimestamp(1, date);
-            statement.execute();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+    public java.sql.Connection getConnection() {
+        return connection;
     }
+
 }
