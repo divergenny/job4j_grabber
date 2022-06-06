@@ -23,12 +23,12 @@ public class AlertRabbit {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        try {
-            ConnectionRabbit connectionRabbit = new ConnectionRabbit(properties);
+        ConnectionForRabbit connectionForRabbit = new ConnectionForRabbit(properties);
+        try (Connection connection = connectionForRabbit.initConnection()) {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDataMap data = new JobDataMap();
-            data.put("connection", connectionRabbit.getConnection());
+            data.put("connection", connection);
             JobDetail job = newJob(Rabbit.class)
                     .usingJobData(data)
                     .build();
