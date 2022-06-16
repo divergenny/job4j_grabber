@@ -37,22 +37,10 @@ public class HabrCareerParse {
 
     }
 
-    private String retrieveDescription(String link) {
-        StringBuilder builder = new StringBuilder();
-        Connection connection;
-        try {
-            connection = Jsoup.connect(link);
-            Document document = connection.get();
-            Elements rows = document.select(".job_show_description__vacancy_description");
-            rows.forEach(row -> {
-                Element descriptionElements = row.select(".style-ugc").first();
-                for (Element element : descriptionElements.children()) {
-                    builder.append(element.text());
-                }
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return builder.toString();
+    private String retrieveDescription(String link) throws IOException {
+        Connection connection = Jsoup.connect(link);
+        Document document = connection.get();
+        Element descriptionElement = document.selectFirst(".style-ugc");
+        return descriptionElement.text();
     }
 }
