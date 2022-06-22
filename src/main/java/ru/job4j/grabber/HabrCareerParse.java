@@ -5,13 +5,18 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.grabber.dao.PsqlStore;
+import ru.job4j.grabber.dao.Store;
 import ru.job4j.grabber.models.Post;
 import ru.job4j.grabber.utils.DateTimeParser;
 import ru.job4j.grabber.utils.HabrCareerDateTimeParser;
 
+import java.io.FileReader;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class HabrCareerParse implements Parse {
 
@@ -30,10 +35,32 @@ public class HabrCareerParse implements Parse {
     }
 
     public static void main(String[] args) {
+        FileReader reader = null;
+        Properties properties = null;
+        Store db = null;
+        try {
+            reader = new FileReader("./src/main/resources/rabbit.properties");
+            properties = new Properties();
+            properties.load(reader);
+            db = new PsqlStore(properties);
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+        }
         DateTimeParser dateTimeParser = new HabrCareerDateTimeParser();
         Parse habrParser = new HabrCareerParse(dateTimeParser);
         List<Post> jobVacancies = habrParser.list(SURF_LINK);
+        System.out.println("========> Save Post <========");
         for (Post post : jobVacancies) {
+            db.save(post);
+        }
+        System.out.println("========> Find by id <========");
+        for (int i = 1; i <= 5; i++) {
+            Post post = db.findById(i);
+            System.out.println(post);
+        }
+        System.out.println("========> Get All <========");
+        List<Post> posts = db.getAll();
+        for (Post post : posts) {
             System.out.println(post);
         }
     }
