@@ -11,8 +11,8 @@ import ru.job4j.grabber.models.Post;
 import ru.job4j.grabber.utils.DateTimeParser;
 import ru.job4j.grabber.utils.HabrCareerDateTimeParser;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +21,12 @@ import java.util.Properties;
 public class HabrCareerParse implements Parse {
 
     public static final int NUMBER_OF_PAGES = 5;
+
     private static final String SOURCE_LINK = "https://career.habr.com";
 
     private static final String PAGE_LINK =
             String.format("%s/vacancies/java_developer", SOURCE_LINK);
+
     private static final String SURF_LINK =
             String.format("%s?page=", PAGE_LINK);
 
@@ -35,13 +37,14 @@ public class HabrCareerParse implements Parse {
     }
 
     public static void main(String[] args) {
-        FileReader reader = null;
-        Properties properties = null;
+        Properties properties;
         Store db = null;
-        try {
-            reader = new FileReader("./src/main/resources/rabbit.properties");
+        try (InputStream in = HabrCareerParse
+                .class
+                .getClassLoader()
+                .getResourceAsStream("rabbit.properties")) {
             properties = new Properties();
-            properties.load(reader);
+            properties.load(in);
             db = new PsqlStore(properties);
         } catch (IOException | SQLException e) {
             e.printStackTrace();

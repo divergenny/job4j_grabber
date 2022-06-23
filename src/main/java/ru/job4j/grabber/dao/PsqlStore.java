@@ -3,9 +3,7 @@ package ru.job4j.grabber.dao;
 import ru.job4j.grabber.models.Post;
 
 import java.sql.*;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -21,7 +19,6 @@ public class PsqlStore implements Store, AutoCloseable {
             url = cfg.getProperty("jdbc.url");
             login = cfg.getProperty("jdbc.username");
             password = cfg.getProperty("jdbc.password");
-
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
@@ -39,11 +36,11 @@ public class PsqlStore implements Store, AutoCloseable {
                      cnn.prepareStatement(
                              "insert into post(name, text, link, created)"
                                      + " values (?, ?, ?, ?)"
-                                     + " on conflict do nothing")) {
+                                     + " on conflict (link) do nothing")) {
             statement.setString(1, post.getTitle());
             statement.setString(2, post.getDescription());
             statement.setString(3, post.getLink());
-            statement.setDate(4, Date.valueOf(post.getCreated().toLocalDate()));
+            statement.setTimestamp(4, Timestamp.valueOf(post.getCreated()));
             statement.execute();
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,7 +71,6 @@ public class PsqlStore implements Store, AutoCloseable {
                      cnn.prepareStatement(
                              "select * from post where id = ?")) {
             statement.setInt(1, id);
-            statement.execute();
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     post = getPostUsingResultSet(resultSet);
@@ -87,8 +83,7 @@ public class PsqlStore implements Store, AutoCloseable {
     }
 
     private Post getPostUsingResultSet(ResultSet resultSet) throws SQLException {
-        Instant instant = Instant.ofEpochMilli(resultSet.getDate("created").getTime());
-        LocalDateTime ldt = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
+        LocalDateTime ldt = resultSet.getTimestamp("created").toLocalDateTime();
         return new Post(
                 resultSet.getInt("id"),
                 resultSet.getString("name"),
