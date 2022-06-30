@@ -6,7 +6,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.job4j.grabber.dao.PsqlStore;
-import ru.job4j.grabber.dao.Store;
 import ru.job4j.grabber.models.Post;
 import ru.job4j.grabber.utils.DateTimeParser;
 import ru.job4j.grabber.utils.HabrCareerDateTimeParser;
@@ -37,34 +36,38 @@ public class HabrCareerParse implements Parse {
     }
 
     public static void main(String[] args) {
-        Properties properties;
-        Store db = null;
+        Properties properties = null;
         try (InputStream in = HabrCareerParse
                 .class
                 .getClassLoader()
                 .getResourceAsStream("rabbit.properties")) {
             properties = new Properties();
             properties.load(in);
-            db = new PsqlStore(properties);
-        } catch (IOException | SQLException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        DateTimeParser dateTimeParser = new HabrCareerDateTimeParser();
-        Parse habrParser = new HabrCareerParse(dateTimeParser);
-        List<Post> jobVacancies = habrParser.list(SURF_LINK);
-        System.out.println("========> Save Post <========");
-        for (Post post : jobVacancies) {
-            db.save(post);
-        }
-        System.out.println("========> Find by id <========");
-        for (int i = 1; i <= 5; i++) {
-            Post post = db.findById(i);
-            System.out.println(post);
-        }
-        System.out.println("========> Get All <========");
-        List<Post> posts = db.getAll();
-        for (Post post : posts) {
-            System.out.println(post);
+        try (PsqlStore db = new PsqlStore(properties)) {
+            DateTimeParser dateTimeParser = new HabrCareerDateTimeParser();
+            Parse habrParser = new HabrCareerParse(dateTimeParser);
+            List<Post> jobVacancies = habrParser.list(SURF_LINK);
+            System.out.println("========> Save Post <========");
+            for (Post post : jobVacancies) {
+                db.save(post);
+            }
+            System.out.println("========> Find by id <========");
+            for (int i = 1; i <= 5; i++) {
+                Post post = db.findById(i);
+                System.out.println(post);
+            }
+            System.out.println("========> Get All <========");
+            List<Post> posts = db.getAll();
+            for (Post post : posts) {
+                System.out.println(post);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
