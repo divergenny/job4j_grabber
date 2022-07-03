@@ -4,6 +4,7 @@ import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import ru.job4j.grabber.HabrCareerParse;
 import ru.job4j.grabber.Parse;
+import ru.job4j.grabber.configuration.Links;
 import ru.job4j.grabber.dao.PsqlStore;
 import ru.job4j.grabber.dao.Store;
 import ru.job4j.grabber.models.Post;
@@ -20,14 +21,6 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 public class Grabber implements Grab {
-
-    private static final String SOURCE_LINK = "https://career.habr.com";
-
-    private static final String PAGE_LINK =
-            String.format("%s/vacancies/java_developer", SOURCE_LINK);
-
-    private static final String SURF_LINK =
-            String.format("%s?page=", PAGE_LINK);
 
     private final Properties cfg = new Properties();
 
@@ -70,11 +63,11 @@ public class Grabber implements Grab {
     public static class GrabJob implements Job {
 
         @Override
-        public void execute(JobExecutionContext context) throws JobExecutionException {
+        public void execute(JobExecutionContext context) {
             JobDataMap map = context.getJobDetail().getJobDataMap();
             Store store = (Store) map.get("store");
             Parse parse = (Parse) map.get("parse");
-            List<Post> posts = parse.list(SURF_LINK);
+            List<Post> posts = parse.list(Links.HABR_SURF_LINK);
             for (Post post : posts) {
                 store.save(post);
             }

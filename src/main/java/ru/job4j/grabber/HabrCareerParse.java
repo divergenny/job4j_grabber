@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.grabber.configuration.Links;
 import ru.job4j.grabber.dao.PsqlStore;
 import ru.job4j.grabber.models.Post;
 import ru.job4j.grabber.utils.DateTimeParser;
@@ -20,14 +21,6 @@ import java.util.Properties;
 public class HabrCareerParse implements Parse {
 
     public static final int NUMBER_OF_PAGES = 5;
-
-    private static final String SOURCE_LINK = "https://career.habr.com";
-
-    private static final String PAGE_LINK =
-            String.format("%s/vacancies/java_developer", SOURCE_LINK);
-
-    private static final String SURF_LINK =
-            String.format("%s?page=", PAGE_LINK);
 
     private final DateTimeParser dateTimeParser;
 
@@ -49,7 +42,7 @@ public class HabrCareerParse implements Parse {
         try (PsqlStore db = new PsqlStore(properties)) {
             DateTimeParser dateTimeParser = new HabrCareerDateTimeParser();
             Parse habrParser = new HabrCareerParse(dateTimeParser);
-            List<Post> jobVacancies = habrParser.list(SURF_LINK);
+            List<Post> jobVacancies = habrParser.list(Links.HABR_SURF_LINK);
             System.out.println("========> Save Post <========");
             for (Post post : jobVacancies) {
                 db.save(post);
@@ -64,10 +57,8 @@ public class HabrCareerParse implements Parse {
             for (Post post : posts) {
                 System.out.println(post);
             }
-        } catch (SQLException throwables) {
+        } catch (Exception throwables) {
             throwables.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -109,7 +100,9 @@ public class HabrCareerParse implements Parse {
         Element dateElement = row.select(".vacancy-card__date").first();
         Element dateLinkElement = dateElement.child(0);
         String date = dateLinkElement.attr("datetime");
-        String vacancyLink = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
+        String vacancyLink = String.format("%s%s",
+                Links.HABR_SOURCE_LINK,
+                linkElement.attr("href"));
         return new Post(vacancyName,
                 vacancyLink,
                 retrieveDescription(vacancyLink),
