@@ -11,8 +11,8 @@ where company_id != 5
 select c.name, COUNT(p.company_id) as quantity
 from person p join company c on p.company_id = c.id
 GROUP BY c.name
-HAVING COUNT(p.company_id) = (select  COUNT(c.name) as quantity
-from person p join company c on p.company_id = c.id
-GROUP BY c.name
+HAVING COUNT(p.company_id) = (select COUNT(*) as quantity
+from person p
+GROUP BY p.company_id
 ORDER BY 1 DESC
 limit 1)
