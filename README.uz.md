@@ -1,5 +1,5 @@
 [![en](https://img.shields.io/badge/lang-English_language-red.svg)](https://github.com/divergenny/job4j_grabber/blob/main/README.md)
-[![uz](https://img.shields.io/badge/lang-O'zbek_tili-green.svg)](https://github.com/divergenny/job4j_grabber/blob/main/README.uz.md)
+[![ru](https://img.shields.io/badge/lang-Русский_язык-blue.svg)](https://github.com/divergenny/job4j_grabber/blob/main/README.ru.md)
 #### job4j_grabber
 
 # Loyixa - Vakansiyalar agregatori ✨<br>
